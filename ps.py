@@ -3,7 +3,6 @@ from gensim.models.word2vec import Word2Vec
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-import tensorflow as tf
 import re 
 
 nsmc = pd.read_csv('ratings_train.txt', sep='\t')
@@ -23,6 +22,8 @@ model.train(
     total_words=model.corpus_total_words
 )
 
+model.save('nsmc.fasttext')
+
 ft = model
 df = nsmc[nsmc['document'].notnull()]
 
@@ -35,12 +36,3 @@ for i, doc in enumerate(doc_train.iloc[:1000]):
     vs = [ft.wv[word] for word in find_hangul(doc)]
     if vs:
         x_train[i,] = np.mean(vs, axis=0)
-
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(16, activation='relu'),
-    tf.keras.layers.Dense(1, activation='sigmoid'),
-])
-
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(x_train, y_train.values[:1000], epochs=1)
-model.save('nsmc.fasttext')
